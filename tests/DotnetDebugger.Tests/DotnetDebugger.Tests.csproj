@@ -48,4 +48,9 @@
     <ProjectReference Include="..\TestApp32\TestApp32.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
+  <!-- The 32-bit adapter's own debuggee: x86 with a Windows PDB, as old Framework projects build (X86AdapterTests). -->
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <ProjectReference Include="..\TestAppFx32Full\TestAppFx32Full.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" SetTargetFramework="TargetFramework=net48" />
+  </ItemGroup>
+
 </Project>

@@ -23,11 +23,12 @@ internal sealed class DapClient : IDisposable
     public bool TerminalHasConsole { get; init; }
 
     /// <param name="logFile">Where the adapter writes its trace (for tests that assert on it); the last --log wins.</param>
-    public DapClient(TimeSpan? timeout = null, string? logFile = null)
+    /// <param name="adapter">A published adapter to run instead of the suite's one (an executable or a dll).</param>
+    public DapClient(TimeSpan? timeout = null, string? logFile = null, string? adapter = null)
     {
         Timeout = timeout ?? TimeSpan.FromSeconds(30);
         // DOTNET_DEBUGGER_ADAPTER points the suite at a published adapter (an executable or a dll)
-        string adapter = Environment.GetEnvironmentVariable("DOTNET_DEBUGGER_ADAPTER") is { Length: > 0 } custom ? custom : TestPaths.AdapterDll;
+        adapter ??= Environment.GetEnvironmentVariable("DOTNET_DEBUGGER_ADAPTER") is { Length: > 0 } custom ? custom : TestPaths.AdapterDll;
         bool isDll = adapter.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
         var startInfo = new ProcessStartInfo(isDll ? "dotnet" : adapter)
         {

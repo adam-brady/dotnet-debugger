@@ -535,14 +535,19 @@ internal sealed class DebugAdapter : IDisposable
             {
                 var args = request.GetArguments<DisconnectArguments>();
                 bool terminate = args?.TerminateDebuggee ?? !_isAttach;
+                if (!terminate)
+                {
+                    // Detach before answering: clients may end the adapter as soon as the response arrives (nvim-dap
+                    // kills it), and an adapter killed partway through detaching takes the debuggee down with it.
+                    _afterResponse = SendTerminated;
+                    _engine.Detach();
+                    return null;
+                }
                 _afterResponse = () =>
                 {
                     try
                     {
-                        if (terminate)
-                            _engine.Terminate();
-                        else
-                            _engine.Detach();
+                        _engine.Terminate();
                     }
                     finally
                     {
